@@ -291,15 +291,6 @@ tinymce.PluginManager.add( 'wordpress', function( editor ) {
 					tr({ '#####': 'Heading 5' }) +
 					tr({ '######': 'Heading 6' }) +
 					tr({ '---': 'Horizontal line' }) +
-					tr({ '***': 'Horizontal line' }) +
-				'</table>';
-
-			html = html +
-				'<h2>' + __( 'The next group of formatting shortcuts are applied as you type or when you insert them around plain text in the same paragraph. Press Escape or the Undo button to undo.' ) + '</h2>' +
-				'<table class="wp-help-th-center fixed">' +
-					tr({ '*': 'Italic', '**': 'Bold' }) +
-					tr({ '_': 'Italic', '__': 'Bold' }) +
-					tr({ '`': 'Code', empty: '' }) +
 				'</table>';
 		}
 
@@ -566,7 +557,22 @@ tinymce.PluginManager.add( 'wordpress', function( editor ) {
 				wp.autosave.server.triggerSave();
 			}
 		} );
+
+		if ( window.getUserSetting( 'editor_plain_text_paste_warning' ) > 1 ) {
+			editor.settings.paste_plaintext_inform = false;
+		}
 	} );
+
+	editor.on( 'PastePlainTextToggle', function( event ) {
+		// Warn twice, then stop.
+		if ( event.state === true ) {
+			var times = parseInt( window.getUserSetting( 'editor_plain_text_paste_warning' ), 10 ) || 0;
+
+			if ( times < 2 ) {
+				window.setUserSetting( 'editor_plain_text_paste_warning', ++times );
+			}
+		}
+	});
 
 	/**
 	 * Experimental: create a floating toolbar.
